@@ -1,0 +1,30 @@
+name: Daily AI & Healthcare Newsletter
+
+on:
+  schedule:
+    # 06:30 UTC = 07:30 CET (winter) / 08:30 CEST (summer) in Munich.
+    # GitHub cron always runs in UTC and does NOT shift for daylight saving,
+    # so your local delivery time will drift by an hour twice a year unless
+    # you edit this line to compensate.
+    - cron: "30 6 * * *"
+  workflow_dispatch: {}   # lets you trigger a run manually from the Actions tab
+
+jobs:
+  send-digest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run digest script
+        run: python news_agent.py
+        env:
+          SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
+          SENDER_APP_PASSWORD: ${{ secrets.SENDER_APP_PASSWORD }}
+          RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
